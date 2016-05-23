@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="bootstrap_custom.css">
+	<style>
+		body.showBig {background:black;}
+		.box {width:100%;max-width:1900px;display:inline-block;padding:40px;}
+		.main {text-align:center;}
+		video {width:100%;}
+		.colLiner {border:solid 1px #000000;padding:20px;}
+		#screenShot {display:block;width:100%;min-height:200px;}
+		input[type="button"] {display:none;}
+		.comp {height:50px;width:50px;}
+		.showBig .bigVideo {position:fixed;width:500px;height:500px;z-index:0;visibility:hidden;}
+		.showBig .bigScreenshot {position:fixed;z-index:1;top:50%;left:50%;transform:translate(-50%,-50%);background:transparent;}
+	</style>
+</head>
+<body class="">
+	<div class="main">
+		<div class="box">
+			<!--<video class="bigVideo" id="live_video" autoplay controls></video>
+			<canvas class="bigScreenshot" id="screenShot"></canvas>-->
+			<section class="container-fluid box">
+				<div class="row">
+					<div class="col-sm-6 col">
+						<div class="colLiner">
+							<video id="live_video" autoplay controls></video>
+						</div>
+					</div>
+					<div class="col-sm-6 col">
+						<div class="colLiner">
+							<canvas id="screenShot"></canvas>
+							<div><input id="takePic" type="button" value="Take Screenshot"></div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section class="container-fluid box" style="display:none;">
+				<div class="row">
+					<div class="col-sm-4 col">
+						<div class="colLiner">
+							<canvas class="comp" id="comp1"></canvas>
+						</div>
+					</div>
+					<div class="col-sm-4 col">
+						<div class="colLiner">
+							<canvas class="comp" id="comp2"></canvas>
+						</div>
+					</div>
+					<div class="col-sm-4 col">
+						<div class="colLiner">
+							<canvas class="comp" id="comp3"></canvas>
+						</div>
+					</div>
+					<div class="col-sm-4 col">
+						<div class="colLiner">
+							<canvas class="comp" id="comp4"></canvas>
+						</div>
+					</div>
+					<div class="col-sm-4 col">
+						<div class="colLiner">
+							<canvas class="comp" id="comp5"></canvas>
+						</div>
+					</div>
+					<div class="col-sm-4 col">
+						<div class="colLiner">
+							<canvas class="comp" id="comp6"></canvas>
+						</div>
+					</div>
+					<div class="col-sm-4 col">
+						<div class="colLiner">
+							<canvas class="comp" id="comp7"></canvas>
+						</div>
+					</div>
+					<div class="col-sm-4 col">
+						<div class="colLiner">
+							<canvas class="comp" id="comp8"></canvas>
+						</div>
+					</div>
+					<div class="col-sm-4 col">
+						<div class="colLiner">
+							<canvas class="comp" id="comp9"></canvas>
+						</div>
+					</div>
+					<div class="col-sm-4 col">
+						<div class="colLiner">
+							<canvas class="comp" id="comp10"></canvas>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+	</div>
+	<script src="jquery.min.js"></script>
+	
+    <script type="text/javascript">
+    	var complexions = [];
+    	
+    	function blurComps(red,green,blue) {
+    		var variance = 170;
+    		var colors = 3;
+    		var factor = variance*colors;
+    		for(var i = 0; i < factor; i++) {
+    			var count = 1;
+    			var redUp = red+count,greenUp = green+count,blueUp = blue+count,redDown = red-count,greenDown = green-count,blueDown = blue-count;
+    			
+    			complexions[redUp+","+blue+","+green] = {};
+    			complexions[redUp+","+blue+","+green] = {};
+    			complexions[red+","+blueUp+","+green] = {};
+    			complexions[red+","+blue+","+greenUp] = {};
+    			complexions[redUp+","+blueUp+","+green] = {};
+    			complexions[red+","+blueUp+","+greenUp] = {};
+    			complexions[redUp+","+blue+","+greenUp] = {};
+    			complexions[redUp+","+blueUp+","+greenUp] = {};
+    			complexions[redDown+","+blue+","+green] = {};
+    			complexions[red+","+blueDown+","+green] = {};
+    			complexions[red+","+blue+","+greenDown] = {};
+    			complexions[redDown+","+blueDown+","+green] = {};
+    			complexions[red+","+blueDown+","+greenDown] = {};
+    			complexions[redDown+","+blue+","+greenDown] = {};
+    			complexions[redDown+","+blueDown+","+greenDown] = {};
+    			
+    			count++;
+    			if(count === variance)
+    				count = 0;
+    		}
+    	}
+    	function setImage(compCanvas, src) {
+    		var ctx = compCanvas.getContext('2d');
+    		var img1 = new Image();
+    		img1.onload = function () {
+    	        ctx.drawImage(img1, 0, 0);
+    	        var imageData = ctx.getImageData(0, 0, 50, 50);
+				var data = imageData.data;
+    	        
+				for(var i=0; i<data.length; i+=4) {
+					var index = i,
+					red = data[i],
+					green = data[i+1],
+					blue = data[i+2],
+					alpha = data[i+3];
+					
+					var key = red+","+green+","+blue;
+					complexions[key] = {"r":red,"g":green,"b":blue};
+					//blurComps(red, green, blue);
+				}
+				console.log(complexions)
+    	    };
+    		
+            img1.src = src;
+    	}
+    	function loadComps() {
+    		var comp1 = $("#comp1")[0];
+    		setImage(comp1, "comp1.png");
+    		var comp2 = $("#comp2")[0];
+    		setImage(comp2, "comp2.png");
+    		var comp3 = $("#comp3")[0];
+    		setImage(comp3, "comp3.png");
+    		var comp4 = $("#comp4")[0];
+    		setImage(comp4, "comp4.png");
+    		var comp5 = $("#comp5")[0];
+    		setImage(comp5, "comp5.png");
+    		var comp6 = $("#comp6")[0];
+    		setImage(comp6, "comp6.png");
+    		var comp7 = $("#comp7")[0];
+    		setImage(comp7, "comp7.png");
+    		var comp8 = $("#comp8")[0];
+    		setImage(comp8, "comp8.png");
+    		var comp9 = $("#comp9")[0];
+    		setImage(comp9, "comp9.png");
+    		var comp10 = $("#comp10")[0];
+    		setImage(comp10, "comp10.png");
+    	}
+    
+    	//TODO: get this working from collection of complexion images instead of using hardcoded swatches below
+    	//loadComps();
+    
+    
+    
+    
+		var errorCallback = function(e) {
+        	console.log('Reeeejected!', e);
+      	};
+		var video = document.getElementById("live_video");
+		navigator.webkitGetUserMedia({video:true, audio:false}, function(stream) {
+			video.src = window.webkitURL.createObjectURL(stream);
+			console.log(stream);
+		}, errorCallback);
+		
+		var canvas = $("#screenShot");
+		var ctx = canvas[0].getContext('2d');
+		var pic = $("#takePic");		
+		var skinR = 132;
+		var skinG = 82;
+		var skinB = 82;
+		var threshHold = 1;
+		
+		function setPixel(imageData, x, y, a, wd) {
+		    var index = (x + y * wd) * 4;
+		    //imageData.data[index+0] = r;
+		    //imageData.data[index+1] = g;
+		    //imageData.data[index+2] = b;
+		    
+// 		    var pow = 30;
+// 		    imageData.data[index+0] = imageData.data[index+0]+pow;
+// 		    imageData.data[index+1] = imageData.data[index+1]+pow;
+// 		    imageData.data[index+2] = imageData.data[index+2]+pow;
+		    
+		    
+		    var threshHold = 5;
+		    imageData.data[index+0] = ((imageData.data[index+0] > skinR-threshHold && imageData.data[index+0] < skinR+threshHold)? 255 : imageData.data[index+0]);
+		    imageData.data[index+1] = ((imageData.data[index+1] > skinB-threshHold && imageData.data[index+1] < skinB+threshHold)? 255 : imageData.data[index+1]);
+		    imageData.data[index+2] = ((imageData.data[index+2] > skinG-threshHold && imageData.data[index+2] < skinG+threshHold)? 255 : imageData.data[index+2]);
+		    
+		    //imageData.data[index+3] = a;
+		}
+		
+
+		/*for (i = 0; i < 1000000; i++) {
+			var x = Math.random() * width | 0;
+			var y = Math.random() * height | 0;
+			var mask = 200;
+			setPixel(imageData, x, y, mask, width);
+		}*/
+
+		var height = 0;
+		var width = 0;
+		function setDeminsions() {
+			var vH = $(video).outerHeight();
+			var vW = $(video).outerWidth();
+			height = vH;
+			width = vW;
+			canvas.css("width", vW+"px").css("height", vH+"px");
+		}
+		setDeminsions();
+		
+		$(window).resize(function() {
+			setDeminsions();
+		});
+		
+		pic.click(function() {
+			var dataURI = canvas[0].toDataURL('image/jpeg');
+		});
+		
+		var swatches = [];
+		var swatches = [{
+			"skinR":132,
+			"skinG":82,
+			"skinB":82
+		},{
+			"skinR":105,
+			"skinG":73,
+			"skinB":75
+		},{
+			"skinR":66,
+			"skinG":51,
+			"skinB":53
+		},{
+			"skinR":88,
+			"skinG":60,
+			"skinB":60
+		},{
+			"skinR":52,
+			"skinG":42,
+			"skinB":46
+		},{
+			"skinR":30,
+			"skinG":30,
+			"skinB":30
+		}];
+		var threshHold = 5;
+		
+		function startCapture() {
+			var time = 100;
+			var interval;
+			video.addEventListener('play',function() {
+				setDeminsions();
+				console.log(ctx.getImageData(0, 0, width, height))
+				interval=window.setInterval(function() {
+					ctx.drawImage(video,0,0,260,125);
+					var imageData = ctx.getImageData(0, 0, width, height);
+					var data = imageData.data;
+					
+					for(var i=0; i<data.length; i+=4) {
+						var index = i,
+						red = data[i],
+						green = data[i+1],
+						blue = data[i+2],
+						alpha = data[i+3],
+						fr=false,fg=false,fb=false;
+						
+						if(typeof swatches !== undefined && swatches instanceof Array) {
+							for(var j = 0; j < swatches.length; j++) {
+								if((red >= swatches[j].skinR-threshHold) && (red <= swatches[j].skinR+threshHold))
+									fr = true;
+								if((green >= swatches[j].skinG-threshHold) && (green <= swatches[j].skinG+threshHold))
+									fg = true;
+								if((blue >= swatches[j].skinB-threshHold) && (blue <= swatches[j].skinB+threshHold))
+									fb = true;
+							}
+						}
+						
+						var key = red+","+green+","+blue;
+						if(complexions[key]) {
+							fr=true;
+							fg=true;
+							fb=true;
+						}
+						
+						
+						if(fr && fg && fb) {
+// 						    imageData.data[index+0] = 255;
+// 						    imageData.data[index+1] = 255;
+// 						    imageData.data[index+2] = 255;
+// 							imageData.data[index+3] = 138;
+						    imageData.data[index+0] = Math.floor((Math.random() * 255) + 1);
+						    imageData.data[index+1] = Math.floor((Math.random() * 255) + 1);
+						    imageData.data[index+2] = Math.floor((Math.random() * 255) + 1);
+// 							imageData.data[index+0] = 137;
+// 						    imageData.data[index+1] = 208;
+// 						    imageData.data[index+2] = 88;
+						}
+						else {
+// 							imageData.data[index+0] = 255;
+// 						    imageData.data[index+1] = 255;
+// 						    imageData.data[index+2] = 255;
+// 						    imageData.data[index+3] = 128;
+						}
+					}
+					
+					ctx.putImageData(imageData, 0, 0);
+				},time);
+			},false);
+			video.addEventListener('pause',function() {window.clearInterval(interval);},false);
+			video.addEventListener('ended',function() {clearInterval(interval);},false);
+		}
+		startCapture();
+    </script>
+</body>
+</html>
